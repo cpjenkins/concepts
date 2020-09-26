@@ -1,0 +1,11 @@
+# build stuff
+bin/
+.deps
+*.a
+*.d
+*.so
+*.pyc
+
+# temp files
+*.swp
+
