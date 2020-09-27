@@ -1,0 +1,29 @@
+# run by top-level makefile
+SHELL = /bin/bash
+
+# compile programs
+BENCHMARKS := $(patsubst bench/%.cc, bench/bin/%, $(shell echo `find bench/ | grep .cc$$`))
+
+# make sure $(DEPDIR) and bin exist
+$(shell mkdir -p $(DEPDIR) >/dev/null)
+$(shell mkdir -p bin >/dev/null)
+
+################################################################################
+# define targets
+################################################################################
+.PHONY: benchmarks
+benchmarks: $(BENCHMARKS)
+
+# generic c++ target
+bench/bin/% : bench/%.cc Makefile $(DEPDIR)/bench/%.d
+	@$(CXX) $(CXXOPTS) $(DEPOPT) $<
+	$(CXX) $(CXXOPTS) $< -o $@ $(LDOPTS)
+
+# remove normal build artifacts (not deps)
+bench_clean:                                ## clean normal stuff, not dependencies
+	@rm -f $(BENCHMARKS)
+
+# include dependency info
+$(DEPDIR)/bench/%.d: ;
+.PRECIOUS: $(DEPDIR)/bench/%.d
+-include $(wildcard $(patsubst bench/bin/%,$(DEPDIR)/bench/%.d,$(BENCHMARKS)))

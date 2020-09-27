@@ -1,5 +1,4 @@
 # a makefile.
-
 INCDIRS := -Iinc/
 
 # compiler configuration
@@ -12,7 +11,7 @@ endif
 
 # enable fast math on gcc - yolo
 ifeq ($(CXX),g++)
-    override CXXOPTS += -ffast-math
+    override CXXOPTS +=-ffast-math
 endif
 
 PROJECT_NAME := concepts
@@ -29,13 +28,15 @@ DEPOPT  = -MT $@ -MM -MP -MF $(DEPDIR)/$*.d
 $(shell mkdir -p $(DEPDIR) >/dev/null)
 $(shell mkdir -p bin >/dev/null)
 
-################################################################################
-# define targets
-################################################################################
-all: $(PROGRAMS)                       ## (default target) build everything
+#---[ define targets
+
+## (default target) build everything
+all: $(PROGRAMS) benchmarks  
+
+include bench/Makefile.bench
 
 # generic c++ target
-bin/% : src/%.cc Makefile $(DEPDIR)/%.d $(DEPS)
+bin/% : src/%.cc Makefile $(DEPDIR)/%.d
 	@$(CXX) $(CXXOPTS) $(DEPOPT) $<
 	$(CXX) $(CXXOPTS) $< -o $@ $(LDOPTS)
 
@@ -44,7 +45,7 @@ depclean:
 	@rm -rf $(DEPDIR)
 
 # remove normal build artifacts (not deps)
-clean:                                ## clean normal stuff, not dependencies
+clean: bench_clean
 	@rm -f $(PROGRAMS)
 	@rm -f $(LIBRARIES)
 	@rm -f build.log	
